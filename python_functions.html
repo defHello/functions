@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Функции в Python — Чикита С.Г.</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Unbounded:wght@300;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --gold: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --code-bg: #0a0c10;
+    --green: #22d3a0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 60px 20px;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,229,255,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 90% 80%, rgba(124,58,237,0.15) 0%, transparent 60%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--accent);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 6rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    margin-top: 20px;
+    color: var(--muted);
+    font-size: 0.95rem;
+    animation: fadeDown 0.6s 0.2s ease both;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    animation: bob 2s ease-in-out infinite;
+  }
+  .scroll-hint svg { opacity: 0.5; }
+
+  /* SECTIONS */
+  .section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(0,229,255,0.2);
+  }
+
+  h2 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 36px 0 14px;
+    color: var(--accent);
+  }
+
+  p {
+    color: #94a3b8;
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid rgba(0,229,255,0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+
+  .code-title {
+    margin-left: auto;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  pre {
+    padding: 22px 22px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.8;
+  }
+
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm  { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .ret { color: var(--green); }
+
+  /* CARDS */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 22px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(0,229,255,0.35);
+    transform: translateY(-3px);
+  }
+
+  .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
+
+  .card h4 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+
+  .card p { font-size: 0.82rem; margin: 0; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin: 0;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 20px 0;
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    background: rgba(0,229,255,0.07);
+    color: var(--accent);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #94a3b8;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* CONTACT SECTION */
+  .contact-section {
+    background: linear-gradient(135deg, #0a0c10 0%, #141220 100%);
+    border-top: 1px solid rgba(124,58,237,0.3);
+    padding: 72px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-section::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .contact-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .contact-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 900;
+    margin-bottom: 10px;
+  }
+  .contact-name span {
+    background: linear-gradient(135deg, var(--gold), #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .contact-tagline {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 40px;
+  }
+
+  .subjects {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 44px;
+  }
+
+  .subject-tag {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 7px 18px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    letter-spacing: 0.05em;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .subject-tag:hover {
+    background: rgba(124,58,237,0.2);
+    border-color: rgba(124,58,237,0.5);
+    color: #e2e8f0;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 26px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.88rem;
+    width: 100%;
+    max-width: 380px;
+    transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  }
+  .contact-link:hover {
+    transform: translateX(4px);
+    border-color: rgba(0,229,255,0.4);
+    background: rgba(0,229,255,0.05);
+  }
+
+  .contact-link .ico {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .ico-phone { background: rgba(34,211,160,0.15); }
+  .ico-viber { background: rgba(124,58,237,0.2); }
+  .ico-wa    { background: rgba(34,197,94,0.15); }
+  .ico-tg    { background: rgba(0,229,255,0.12); }
+
+  .contact-link .label { color: var(--muted); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .contact-link .val   { font-size: 0.9rem; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 28px 20px;
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bob {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(8px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">Python · Урок</div>
+  <h1><span>Функции</span><br>в Python</h1>
+  <p class="hero-sub">Строительные блоки любой программы</p>
+  <div class="scroll-hint">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8 3v10M3 9l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    SCROLL
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ЧТО ТАКОЕ ФУНКЦИЯ -->
+<section class="section">
+  <div class="section-label">01 — Основы</div>
+  <h2>Что такое функция?</h2>
+  <p>Функция — это именованный блок кода, который можно вызывать многократно. Она принимает входные данные (аргументы), выполняет действия и возвращает результат.</p>
+  <p>Ключевое слово <code style="color:var(--accent)">def</code> объявляет функцию. Блок кода внутри выполняется только при вызове.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">hello.py</span>
+    </div>
+    <pre><span class="cm"># Объявление функции</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name):
+    <span class="kw">print</span>(<span class="str">f"Привет, {name}!"</span>)
+
+<span class="cm"># Вызов функции</span>
+<span class="fn">greet</span>(<span class="str">"Сергей"</span>)   <span class="cm"># → Привет, Сергей!</span>
+<span class="fn">greet</span>(<span class="str">"Мир"</span>)     <span class="cm"># → Привет, Мир!</span></pre>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">♻️</div>
+      <h4>Переиспользование</h4>
+      <p>Пишешь один раз — вызываешь сколько угодно раз.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧩</div>
+      <h4>Декомпозиция</h4>
+      <p>Разбиваешь сложную задачу на простые подзадачи.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h4>Читаемость</h4>
+      <p>Код с функциями понять гораздо проще, чем монолит.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- АРГУМЕНТЫ -->
+<section class="section">
+  <div class="section-label">02 — Аргументы</div>
+  <h2>Виды аргументов</h2>
+
+  <h3>Позиционные и именованные</h3>
+  <p>Позиционные передаются по порядку, именованные — по ключу. Можно комбинировать.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">args.py</span>
+    </div>
+    <pre><span class="kw">def</span> <span class="fn">power</span>(base, exp=<span class="num">2</span>):          <span class="cm"># exp — со значением по умолчанию</span>
+    <span class="kw">return</span> base ** exp
+
+<span class="fn">power</span>(<span class="num">3</span>)          <span class="cm"># → 9   (exp=2 по умолчанию)</span>
+<span class="fn">power</span>(<span class="num">3</span>, <span class="num">3</span>)       <span class="cm"># → 27  (позиционно)</span>
+<span class="fn">power</span>(exp=<span class="num">4</span>, base=<span class="num">2</span>)  <span class="cm"># → 16  (именованные)</span></pre>
+  </div>
+
+  <h3>*args и **kwargs</h3>
+  <p><code style="color:var(--accent)">*args</code> собирает произвольное число позиционных аргументов в кортеж. <code style="color:var(--accent)">**kwargs</code> — именованные в словарь.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">varargs.py</span>
+    </div>
+    <pre><span class="kw">def</span> <span class="fn">total</span>(*nums):
+    <span class="kw">return</span> <span class="fn">sum</span>(nums)
+
+<span class="fn">total</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>)   <span class="cm"># → 10</span>
+
+<span class="kw">def</span> <span class="fn">info</span>(**data):
+    <span class="kw">for</span> k, v <span class="kw">in</span> data.items():
+        <span class="kw">print</span>(<span class="str">f"{k}: {v}"</span>)
+
+<span class="fn">info</span>(name=<span class="str">"Сергей"</span>, city=<span class="str">"Минск"</span>)
+<span class="cm"># name: Сергей</span>
+<span class="cm"># city: Минск</span></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- RETURN -->
+<section class="section">
+  <div class="section-label">03 — Возврат значений</div>
+  <h2>return и None</h2>
+  <p>Функция без <code style="color:var(--accent)">return</code> возвращает <code style="color:var(--accent)">None</code>. Можно вернуть несколько значений сразу — Python упакует их в кортеж.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">return.py</span>
+    </div>
+    <pre><span class="kw">def</span> <span class="fn">divide</span>(a, b):
+    <span class="kw">if</span> b == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="ret">None</span>, <span class="str">"Деление на ноль!"</span>
+    <span class="kw">return</span> a / b, <span class="ret">None</span>
+
+result, error = <span class="fn">divide</span>(<span class="num">10</span>, <span class="num">2</span>)
+<span class="kw">print</span>(result)   <span class="cm"># → 5.0</span>
+
+result, error = <span class="fn">divide</span>(<span class="num">10</span>, <span class="num">0</span>)
+<span class="kw">print</span>(error)    <span class="cm"># → Деление на ноль!</span></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- LAMBDA -->
+<section class="section">
+  <div class="section-label">04 — Лямбда</div>
+  <h2>Лямбда-функции</h2>
+  <p>Однострочные анонимные функции. Удобны для сортировки, фильтрации, map/filter.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">lambda.py</span>
+    </div>
+    <pre><span class="cm"># Обычная vs лямбда</span>
+<span class="kw">def</span> <span class="fn">square</span>(x): <span class="kw">return</span> x**<span class="num">2</span>
+sq = <span class="kw">lambda</span> x: x**<span class="num">2</span>
+
+<span class="cm"># Сортировка по ключу</span>
+students = [(<span class="str">"Аня"</span>, <span class="num">19</span>), (<span class="str">"Боря"</span>, <span class="num">22</span>), (<span class="str">"Вася"</span>, <span class="num">17</span>)]
+students.<span class="fn">sort</span>(key=<span class="kw">lambda</span> s: s[<span class="num">1</span>])
+<span class="cm"># [("Вася", 17), ("Аня", 19), ("Боря", 22)]</span>
+
+<span class="cm"># map и filter</span>
+nums = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+doubled = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> x: x*<span class="num">2</span>, nums))   <span class="cm"># [2,4,6,8,10]</span>
+evens   = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> x: x%<span class="num">2</span>==<span class="num">0</span>, nums)) <span class="cm"># [2,4]</span></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ОБЛАСТЬ ВИДИМОСТИ -->
+<section class="section">
+  <div class="section-label">05 — Scope</div>
+  <h2>Область видимости (LEGB)</h2>
+  <p>Python ищет переменные по правилу LEGB: <b style="color:var(--accent)">L</b>ocal → <b style="color:var(--accent)">E</b>nclosing → <b style="color:var(--accent)">G</b>lobal → <b style="color:var(--accent)">B</b>uilt-in.</p>
+
+  <table>
+    <tr><th>Уровень</th><th>Где живёт</th><th>Пример</th></tr>
+    <tr><td>Local</td><td>Внутри функции</td><td>переменная внутри def</td></tr>
+    <tr><td>Enclosing</td><td>Внешняя функция (замыкание)</td><td>переменная внешнего def</td></tr>
+    <tr><td>Global</td><td>Модуль (файл)</td><td>переменная в начале файла</td></tr>
+    <tr><td>Built-in</td><td>Python</td><td>len, print, range…</td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">scope.py</span>
+    </div>
+    <pre>x = <span class="num">10</span>   <span class="cm"># global</span>
+
+<span class="kw">def</span> <span class="fn">outer</span>():
+    x = <span class="num">20</span>  <span class="cm"># enclosing</span>
+    <span class="kw">def</span> <span class="fn">inner</span>():
+        <span class="kw">print</span>(x)  <span class="cm"># берёт из enclosing → 20</span>
+    <span class="fn">inner</span>()
+
+<span class="fn">outer</span>()
+<span class="kw">print</span>(x)   <span class="cm"># global → 10</span></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ДЕКОРАТОРЫ (превью) -->
+<section class="section">
+  <div class="section-label">06 — Следующий шаг</div>
+  <h2>Декораторы — что дальше</h2>
+  <p>Декоратор — функция, которая принимает другую функцию и расширяет её поведение, не изменяя код.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="code-title">decorator.py</span>
+    </div>
+    <pre><span class="kw">def</span> <span class="fn">timer</span>(func):
+    <span class="kw">import</span> time
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*args, **kwargs):
+        start = time.<span class="fn">time</span>()
+        result = <span class="fn">func</span>(*args, **kwargs)
+        <span class="kw">print</span>(<span class="str">f"Время: {time.time()-start:.4f}с"</span>)
+        <span class="kw">return</span> result
+    <span class="kw">return</span> wrapper
+
+<span class="ret">@timer</span>
+<span class="kw">def</span> <span class="fn">slow_sum</span>(n):
+    <span class="kw">return</span> <span class="fn">sum</span>(<span class="fn">range</span>(n))
+
+<span class="fn">slow_sum</span>(<span class="num">1_000_000</span>)   <span class="cm"># Время: 0.0231с</span></pre>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ЗАДАЧИ -->
+<section class="section">
+  <div class="section-label">07 — Практика</div>
+  <h2>20 задач по функциям</h2>
+  <p>От простых к сложным. Решай по порядку — каждая группа закрепляет отдельную тему.</p>
+
+  <h3>🟢 Уровень 1 — Базовые функции</h3>
+
+  <div class="task-list">
+
+    <div class="task-card">
+      <div class="task-num">01</div>
+      <div class="task-body">
+        <div class="task-title">Приветствие</div>
+        <p>Напиши функцию <code>greet(name)</code>, которая принимает имя и возвращает строку <code>"Привет, [имя]!"</code>.</p>
+        <div class="task-hint">→ Используй f-строку и return</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">02</div>
+      <div class="task-body">
+        <div class="task-title">Площадь прямоугольника</div>
+        <p>Напиши функцию <code>area(width, height)</code>, которая возвращает площадь прямоугольника.</p>
+        <div class="task-hint">→ Проверь: area(4, 5) == 20</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">03</div>
+      <div class="task-body">
+        <div class="task-title">Чётное или нечётное</div>
+        <p>Функция <code>is_even(n)</code> возвращает <code>True</code>, если n чётное, и <code>False</code> иначе.</p>
+        <div class="task-hint">→ Используй оператор %</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">04</div>
+      <div class="task-body">
+        <div class="task-title">Максимум из двух</div>
+        <p>Напиши функцию <code>my_max(a, b)</code>, которая возвращает наибольшее из двух чисел. Не используй встроенный <code>max()</code>.</p>
+        <div class="task-hint">→ Используй if/else</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">05</div>
+      <div class="task-body">
+        <div class="task-title">Степень числа</div>
+        <p>Функция <code>power(base, exp=2)</code> возвращает base в степени exp. Параметр exp по умолчанию равен 2.</p>
+        <div class="task-hint">→ power(3) == 9, power(2, 10) == 1024</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>🟡 Уровень 2 — Аргументы и возврат</h3>
+
+  <div class="task-list">
+
+    <div class="task-card">
+      <div class="task-num">06</div>
+      <div class="task-body">
+        <div class="task-title">Сумма произвольных чисел</div>
+        <p>Напиши функцию <code>total(*nums)</code>, которая принимает любое количество чисел и возвращает их сумму.</p>
+        <div class="task-hint">→ total(1, 2, 3, 4, 5) == 15</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">07</div>
+      <div class="task-body">
+        <div class="task-title">Профиль пользователя</div>
+        <p>Функция <code>profile(**info)</code> принимает именованные аргументы и выводит их в виде: <code>ключ: значение</code>.</p>
+        <div class="task-hint">→ profile(name="Анна", age=21, city="Минск")</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">08</div>
+      <div class="task-body">
+        <div class="task-title">Деление с остатком</div>
+        <p>Функция <code>divmod_custom(a, b)</code> возвращает сразу два значения: частное и остаток от деления a на b.</p>
+        <div class="task-hint">→ quotient, remainder = divmod_custom(17, 5) → 3, 2</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">09</div>
+      <div class="task-body">
+        <div class="task-title">Конвертер температуры</div>
+        <p>Функция <code>convert_temp(value, unit="C")</code>: если unit == "C", переводит в Фаренгейт; если "F" — в Цельсий.</p>
+        <div class="task-hint">→ convert_temp(100, "C") ≈ 212.0 °F</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">10</div>
+      <div class="task-body">
+        <div class="task-title">Все числа чётные?</div>
+        <p>Функция <code>all_even(*nums)</code> возвращает <code>True</code>, если все переданные числа чётные.</p>
+        <div class="task-hint">→ all_even(2, 4, 6) == True; all_even(2, 3) == False</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>🟠 Уровень 3 — Лямбды и встроенные функции</h3>
+
+  <div class="task-list">
+
+    <div class="task-card">
+      <div class="task-num">11</div>
+      <div class="task-body">
+        <div class="task-title">Сортировка по длине</div>
+        <p>Дан список слов. Отсортируй его по длине слова с помощью <code>sorted()</code> и лямбды.</p>
+        <div class="task-hint">→ ["кот", "слон", "ёж"] → ["ёж", "кот", "слон"]</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">12</div>
+      <div class="task-body">
+        <div class="task-title">Квадраты через map</div>
+        <p>Используя <code>map()</code> и лямбду, получи список квадратов чисел от 1 до 10.</p>
+        <div class="task-hint">→ [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">13</div>
+      <div class="task-body">
+        <div class="task-title">Фильтр отрицательных</div>
+        <p>Используя <code>filter()</code> и лямбду, оставь из списка только отрицательные числа.</p>
+        <div class="task-hint">→ [-3, 1, -7, 4, 0, -1] → [-3, -7, -1]</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">14</div>
+      <div class="task-body">
+        <div class="task-title">Сортировка словарей</div>
+        <p>Дан список словарей <code>[{"name": "Аня", "age": 19}, ...]</code>. Отсортируй по ключу <code>"age"</code> с помощью лямбды.</p>
+        <div class="task-hint">→ key=lambda x: x["age"]</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">15</div>
+      <div class="task-body">
+        <div class="task-title">Применить операцию</div>
+        <p>Напиши функцию <code>apply(func, lst)</code>, которая принимает функцию и список, и возвращает список результатов применения функции к каждому элементу.</p>
+        <div class="task-hint">→ apply(lambda x: x**2, [1,2,3]) == [1, 4, 9]</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3>🔴 Уровень 4 — Замыкания и декораторы</h3>
+
+  <div class="task-list">
+
+    <div class="task-card">
+      <div class="task-num">16</div>
+      <div class="task-body">
+        <div class="task-title">Счётчик вызовов</div>
+        <p>Напиши функцию <code>make_counter()</code>, которая возвращает внутреннюю функцию. Каждый вызов этой функции увеличивает счётчик и возвращает его значение.</p>
+        <div class="task-hint">→ c = make_counter(); c() → 1; c() → 2; c() → 3</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">17</div>
+      <div class="task-body">
+        <div class="task-title">Умножитель</div>
+        <p>Функция <code>multiplier(n)</code> возвращает функцию, которая умножает свой аргумент на n.</p>
+        <div class="task-hint">→ double = multiplier(2); double(5) == 10</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">18</div>
+      <div class="task-body">
+        <div class="task-title">Декоратор логирования</div>
+        <p>Напиши декоратор <code>@log</code>, который перед вызовом функции выводит её имя и аргументы, а после — возвращаемое значение.</p>
+        <div class="task-hint">→ Используй func.__name__ и *args, **kwargs</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">19</div>
+      <div class="task-body">
+        <div class="task-title">Декоратор кэша</div>
+        <p>Напиши декоратор <code>@cache</code>, который запоминает результат функции для одинаковых аргументов и не пересчитывает его повторно.</p>
+        <div class="task-hint">→ Используй словарь внутри wrapper для хранения результатов</div>
+      </div>
+    </div>
+
+    <div class="task-card">
+      <div class="task-num">20</div>
+      <div class="task-body">
+        <div class="task-title">Рекурсивный факториал</div>
+        <p>Напиши функцию <code>factorial(n)</code>, которая вычисляет n! рекурсивно. Добавь проверку: если n < 0 — вызвать <code>ValueError</code>.</p>
+        <div class="task-hint">→ factorial(5) == 120; factorial(0) == 1</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .task-card {
+    display: flex;
+    gap: 18px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: border-color 0.2s, transform 0.2s;
+    align-items: flex-start;
+  }
+
+  .task-card:hover {
+    border-color: rgba(0,229,255,0.3);
+    transform: translateX(4px);
+  }
+
+  .task-num {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: rgba(0,229,255,0.25);
+    min-width: 40px;
+    line-height: 1;
+    padding-top: 3px;
+  }
+
+  .task-body { flex: 1; }
+
+  .task-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .task-body p {
+    font-size: 0.82rem;
+    margin-bottom: 8px;
+  }
+
+  .task-body code {
+    color: var(--accent);
+    background: rgba(0,229,255,0.08);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+
+  .task-hint {
+    font-size: 0.72rem;
+    color: var(--green);
+    opacity: 0.75;
+    font-style: italic;
+  }
+</style>
+
+<hr class="divider">
+
+<!-- КОНТАКТЫ -->
+<section class="contact-section">
+  <div class="contact-inner">
+    <div class="badge" style="margin-bottom:20px">Репетитор · Наставник</div>
+    <div class="contact-name"><span>Чикита</span> Сергей<br>Геннадьевич</div>
+    <div class="contact-tagline">Помогу разобраться — от основ до диплома</div>
+
+    <div class="subjects">
+      <span class="subject-tag">🐍 Программирование</span>
+      <span class="subject-tag">📐 Математика</span>
+      <span class="subject-tag">⚛️ Физика</span>
+      <span class="subject-tag">📄 Курсовые</span>
+      <span class="subject-tag">🔬 Лабораторные</span>
+      <span class="subject-tag">🎓 Дипломы</span>
+    </div>
+
+    <div class="contact-links">
+      <a class="contact-link" href="tel:+375295450978">
+        <div class="ico ico-phone">📞</div>
+        <div>
+          <div class="label">Телефон</div>
+          <div class="val">+375 29 545-09-78</div>
+        </div>
+      </a>
+      <a class="contact-link" href="viber://chat?number=%2B375295450978">
+        <div class="ico ico-viber">💬</div>
+        <div>
+          <div class="label">Viber</div>
+          <div class="val">+375 29 545-09-78</div>
+        </div>
+      </a>
+      <a class="contact-link" href="https://wa.me/375295450978">
+        <div class="ico ico-wa">🟢</div>
+        <div>
+          <div class="label">WhatsApp</div>
+          <div class="val">+375 29 545-09-78</div>
+        </div>
+      </a>
+      <a class="contact-link" href="https://t.me/gpt_man">
+        <div class="ico ico-tg">✈️</div>
+        <div>
+          <div class="label">Telegram</div>
+          <div class="val">@gpt_man</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2025 Чикита С.Г. &nbsp;·&nbsp; Репетитор по программированию, математике и физике
+</footer>
+
+</body>
+</html>
